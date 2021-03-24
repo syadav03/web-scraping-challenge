@@ -1,6 +1,6 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
-# %%
+
 #Import Depedencies 
 import requests 
 from splinter import Browser
@@ -11,12 +11,16 @@ import time
 import pymongo
 import pandas as pd
 
+def init_browser():
+    executable_path = {'executable_path': ChromeDriverManager().install()}
+    return Browser("chrome", **executable_path, headless=False)
 
-
+mars_data = {}
  
 def scrape_all():
-    executable_path = {"executable_path": "/usr/local/bin/chromedriver"}
-    return Browser("chrome", **executable_path, headless=False)
+    browser = init_browser()
+
+    
 
     mars_news(browser)
     featured_image(browser)
@@ -25,7 +29,7 @@ def scrape_all():
 
     browser.quit()
 
-    return data
+    return mars_data
     # Setup splinter
     
 def mars_news(browser):
@@ -47,8 +51,11 @@ def mars_news(browser):
 
     news_p = p_news[0].text
     #print(news_p)
+    # Dictionary entry from MARS NEWS
+    mars_data['news_title'] = news_title
+    mars_data['news_paragraph'] = news_p
     # Close the test browser
-    return
+    return mars_data
 
 
     # Next part pulling image from website
@@ -75,7 +82,9 @@ def featured_image(browser):
 
     featured_image_url = "https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/" + img_url
     featured_image_url
-    return
+
+    mars_data['featured_image_url'] = featured_image_url
+    return mars_data
 
  
     # Mars Facts 
@@ -92,7 +101,9 @@ def mars_facts():
     mars_facts = tables[0].to_html()
     mars_facts
 
-    return
+    mars_info['mars_facts'] = mars_facts
+
+    return mars_data
     
 
 
@@ -125,16 +136,13 @@ def hemispheres(browser):
     
     hemisphere_image_urls
 
-
-    # MongoDB and Flask Application
-    ## NASA Mars News
-    data = {"news_title": news_title, 
-                "news_paragraph": news_p,
-                "featured_image": featured_image_url,
-                "facts": mars_facts,
-                "hemispheres": hemisphere_image_urls}
-    return
+    mars_data["hemispheres"] = hemisphere_image_urls
 
 
-if __name__ == "__main__":
-    print()
+    
+    
+    return mars_data
+
+
+# if __name__ == "__main__":
+#     print()
